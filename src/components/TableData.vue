@@ -23,7 +23,7 @@
               </template>
               <template v-else-if="isDate(item)">
                 <date-picker
-                  valuetype="format"
+                  valueType="format" 
                   :lang="'en'"
                   type="string"
                   v-model="edittingTemplate"
