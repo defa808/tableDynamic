@@ -17,16 +17,33 @@
       <tbody>
         <tr v-for="(row, index) in orderedItems" :key="`r${index}`">
           <td v-for="(item, key) in row" :key="`r${key}`">
-            <span v-if="edittingIndexCom.i === index && edittingIndexCom.j === key">
-              <input v-model="edittingTemplate" class="input">
-              <button @click="disableEditing(index,key)">Cancel</button>
-              <button @click="saveEdit(index,key)">Save</button>
-            </span>
+            <div v-if="edittingIndexCom.i === index && edittingIndexCom.j === key" class="form">
+              <template v-if="typeof item == 'number'">
+                <input v-model="edittingTemplate" type="number" class="input">
+              </template>
+              <template v-else-if="isDate(item)">
+                <date-picker
+                  valuetype="format"
+                  :lang="'en'"
+                  type="string"
+                  v-model="edittingTemplate"
+                ></date-picker>
+              </template>
+              <template v-else-if="typeof item == 'string'">
+                <input v-model="edittingTemplate" type="text" class="input">
+              </template>
+              <template v-else-if="isArray(item)">
+                <input v-model="edittingTemplate" type="text" class="input">
+              </template>
+              <div style="display:flex;flex-flow:row nowrap;">
+                <b-button @click="saveEdit(index,key)" variant="success">Save</b-button>
+                <b-button @click="disableEditing(index,key)" variant="danger">Cancel</b-button>
+              </div>
+            </div>
             <span
               v-if="edittingIndexCom.i !== index || edittingIndexCom.j !== key"
               @click="enableEditing(index,key)"
             >
-              {{index}} {{ key}}
               <span v-html="replaceText(item.toString())"/>
             </span>
           </td>
@@ -39,12 +56,17 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import _ from "lodash";
+import DatePicker from "vue2-datepicker";
 
 export default {
   name: "TableData",
   data: function() {
     return { edittingTemplate: "", edittingIndex: { i: null, j: null } };
   },
+  components: {
+    DatePicker
+  },
+
   computed: {
     ...mapState(["searchText", "sortKey", "reverse"]),
     ...mapGetters(["fields", "rows"]),
@@ -59,7 +81,7 @@ export default {
         return { i: this.edittingIndex.i, j: this.edittingIndex.j };
       },
       set: function(obj) {
-        this.edittingIndex = { i:obj.i, j:obj.j };
+        this.edittingIndex = { i: obj.i, j: obj.j };
       }
     },
 
@@ -76,8 +98,21 @@ export default {
       );
     },
 
+    onSelectedDate(date) {
+      console.log(new Da());
+    },
+
+    isArray(item) {
+      return Array.isArray(item);
+    },
+
+    isDate(item) {
+      let checkDate = new Date(item);
+      return checkDate != "Invalid Date";
+    },
+
     enableEditing(i, j) {
-      this.edittingIndexCom = {i,j};
+      this.edittingIndexCom = { i, j };
       this.edittingTemplate = this.orderedItems[i][j];
     },
 
@@ -142,6 +177,7 @@ th.sortDesc::after {
 
 td {
   border: 1px solid #ddd;
+  max-width: 200px !important;
 }
 
 td,
@@ -153,5 +189,27 @@ i {
   display: inline-block;
   font-style: normal;
   background-color: yellow;
+}
+
+.mx-calendar-icon {
+  height: auto;
+}
+
+.form {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  height: 35px;
+  margin: 0px;
+  padding: 0px;
+
+  button:first-child {
+    margin-right: 15px;
+    margin-left: 20px;
+  }
+}
+
+.input {
+  width: 100%;
 }
 </style>
