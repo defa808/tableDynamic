@@ -17,7 +17,18 @@
       <tbody>
         <tr v-for="(row, index) in orderedItems" :key="`r${index}`">
           <td v-for="(item, key) in row" :key="`r${key}`">
-            <span v-html="replaceText(item.toString())"/>
+            <span v-if="edittingIndexCom.i === index && edittingIndexCom.j === key">
+              <input v-model="edittingTemplate" class="input">
+              <button @click="disableEditing(index,key)">Cancel</button>
+              <button @click="saveEdit(index,key)">Save</button>
+            </span>
+            <span
+              v-if="edittingIndexCom.i !== index || edittingIndexCom.j !== key"
+              @click="enableEditing(index,key)"
+            >
+              {{index}} {{ key}}
+              <span v-html="replaceText(item.toString())"/>
+            </span>
           </td>
         </tr>
       </tbody>
@@ -31,7 +42,9 @@ import _ from "lodash";
 
 export default {
   name: "TableData",
-
+  data: function() {
+    return { edittingTemplate: "", edittingIndex: { i: null, j: null } };
+  },
   computed: {
     ...mapState(["searchText", "sortKey", "reverse"]),
     ...mapGetters(["fields", "rows"]),
@@ -39,6 +52,19 @@ export default {
     orderedItems() {
       let sortKey = this.sortKey;
       return _.orderBy(this.rows, sortKey, this.reverse ? "desc" : "asc");
+    },
+
+    edittingIndexCom: {
+      get: function() {
+        return { i: this.edittingIndex.i, j: this.edittingIndex.j };
+      },
+      set: function(obj) {
+        this.edittingIndex = { i:obj.i, j:obj.j };
+      }
+    },
+
+    getEdittingTemplate() {
+      return this.edittingTemplate;
     }
   },
 
@@ -48,6 +74,20 @@ export default {
         new RegExp("(" + this.searchText + ")", "gim"),
         "<i>$1</i>"
       );
+    },
+
+    enableEditing(i, j) {
+      this.edittingIndexCom = {i,j};
+      this.edittingTemplate = this.orderedItems[i][j];
+    },
+
+    disableEditing(i, j) {
+      this.edittingIndexCom = { i: null, j: null };
+    },
+
+    saveEdit(i, j) {
+      this.orderedItems[i][j] = this.edittingTemplate;
+      this.edittingIndexCom = { i: null, j: null };
     },
 
     sortBy(sortKey) {

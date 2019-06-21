@@ -2,7 +2,7 @@
   <nav>
     <ul>
       <li>
-         <router-link
+        <router-link
           v-if="curPage!=1"
           v-on:click.native="prevPage"
           :to="{ path: '/page/'+ (curPage - 1)}"
@@ -97,12 +97,12 @@ export default {
   },
 
   created() {
-    this.setCurPage(parseInt(this.$route.params.page));
+    if (this.$route.params.page == undefined) this.setCurPage(1);
+    else this.setCurPage(parseInt(this.$route.params.page));
   },
 
   methods: {
     setCurPage(n) {
-      debugger;
       this.$store.commit("set", { key: "curPage", value: n });
     },
 
