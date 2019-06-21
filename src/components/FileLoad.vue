@@ -58,8 +58,6 @@ export default {
       document.querySelector("#textnode").style.fontSize = "42px";
 
       var files = e.dataTransfer.files;
-      console.log("Drop files:", files);
-      //this.uploadFile(files);
       self.uploadFiles(files);
     });
   },

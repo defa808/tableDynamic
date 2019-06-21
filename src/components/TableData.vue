@@ -98,9 +98,6 @@ export default {
       );
     },
 
-    onSelectedDate(date) {
-      console.log(new Da());
-    },
 
     isArray(item) {
       return Array.isArray(item);
